@@ -1,0 +1,9 @@
+# Compiled executables and object files
+*.exe
+*.o
+equipment_catalog_example
+parcel_pickup_view
+delivery_report_practice
+
+# Editor configuration
+.vscode/
