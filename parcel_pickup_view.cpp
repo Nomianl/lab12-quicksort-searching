@@ -54,7 +54,7 @@ int main()
     displayParcels(parcels, CAPACITY);
 
     // --- STEP D1: Activate after completing the search function ---
-    /*
+    
     int target;
     cout << "Enter a pickup code: ";
     if (!(cin >> target))
@@ -72,7 +72,7 @@ int main()
         cout << "Pickup code " << readyView[position]->pickupCode
              << " | Locker: " << readyView[position]->locker << endl;
     }
-    */
+    
     return 0;
 }
 
@@ -122,6 +122,25 @@ void quickSortReady(Parcel *view[], int first, int last)
 int binaryFindReady(Parcel *view[], int count, int target)
 {
     // TODO (Part D): Implement iterative binary search by pickupCode on the sorted view.
+    int first = 0;
+    int last = count - 1;
+
+    while (first <= last)
+    {
+        int middle = first + (last - first) / 2;
+        if (view[middle]->pickupCode == target)
+        {
+            return middle;
+        }
+        if (view[middle]->pickupCode < target)
+        {
+            first = middle + 1;
+        }
+        else
+        {
+            last = middle - 1;
+        }
+    }
     return -1; // Temporary placeholder; replace with the complete search.
 }
 
@@ -153,16 +172,32 @@ void displayReady(Parcel *view[], int count)
  * middle, pivotCode, boundary, scan, and codes before and after each comparison.
  * Include the loop's final false test and the final pivot exchange.
  * Answer:
+ * - Start: view = [640, 580, 325, 710, 190, 505], first = 0, last = 5, middle = 2 (code 325).
+ * - Initial swap: pivotCode = 325 moved to index 0. View: [325, 580, 640, 710, 190, 505], boundary = 0.
+ * - scan = 1 (code 580): 580 < 325 is False. boundary = 0.
+ * - scan = 2 (code 640): 640 < 325 is False. boundary = 0.
+ * - scan = 3 (code 710): 710 < 325 is False. boundary = 0.
+ * - scan = 4 (code 190): 190 < 325 is True -> boundary becomes 1, swap view[1] and view[4]. View: [325, 190, 640, 710, 580, 505]
+ * - scan = 5 (code 505): 505 < 325 is False. boundary = 1.
+ * - Loop end: scan increments to 6 (6 <= 5 is False), terminating the loop.
+ * - Final pivot swap: Swap view[0] and view[1]. Final partitioned view: [190, 325, 640, 710, 580, 505], returns pivotIndex = 1.
  *
  * C4 - Data and memory
  * Explain what changes when swapping two Parcel pointers by reference.
  * Identify who owns the objects and why the view must not delete them.
  * Answer:
+ * Swapping pointers only changes the copied memory addresses inside the view array, 
+ * leaving the original `parcels` array untouched. The main array owns the physical 
+ * Parcel objects, so the view must never delete them.
  *
  * D3 - Search positions and absence
  * Trace code 505 and the absent ready-view code 460. Give the checked ranges
  * and explain why a view index cannot be used as an index into parcels.
  * Answer:
+ * - Trace for 505: Range 0..5 checks middle index 2 (code 505) -> immediate match found.
+ * - Trace for 460: Checks range 0..5 (mid=2, code 505) -> moves left to 0..1 (mid=0, code 190) -> moves right to 1..1 (mid=1, code 325) -> range becomes 2..1 (base case hit), returns -1.
+ * View indices cannot be used on `parcels` because the view holds a filtered, 
+ * reordered subset, meaning a view index points to a different physical item than the main array.
  *
  * D4 - Time and auxiliary space
  * For n ready parcels and q queries, compare sorting once then using binary
@@ -170,4 +205,8 @@ void displayReady(Parcel *view[], int count)
  * bounds for this quicksort, balanced-partition bounds, and iterative-search
  * auxiliary space. Distinguish the view storage from recursive-call storage.
  * Answer:
+ * - Quicksort once + binary search (q queries): O(n \log n + q \log n), which is much faster than linear scan ($O(n \times q)$) for multiple queries.
+ * - Quicksort bounds: Worst-case time is O(n^2); balanced time is O(n \log n).
+ * - Iterative search space: O(1) auxiliary space.
+ * - Storage distinction: View storage uses O(n) space for pointers, while quicksort recursion uses $O(\log n)$ to $O(n)$ stack frame space.
  */
